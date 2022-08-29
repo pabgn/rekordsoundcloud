@@ -1,3 +1,4 @@
+from cgitb import enable
 import dearpygui.dearpygui as dpg
 from utils import get_playlists
 from translate import translate
@@ -39,8 +40,9 @@ def update_status(status):
         print_output('[OK] {} translated'.format(status['filename']))
     if status['status'] == 'end':
         text = ''
-        print_output("Translation fished at {}: {} tracks successful, {} with errors".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), status['converted'], status['errors']))
+        print_output("Translation finished at {}: {} tracks successful, {} with errors".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), status['converted'], status['errors']))
         update_progress(1)
+        dpg.configure_item("translate_button", enabled=True)
     dpg.set_value("progress_text",text)
 
 
@@ -50,6 +52,7 @@ def start_translation():
         dpg.configure_item("output_status", show=True)
         print_output("Translation process started at "+ datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         translate(dpg.get_value("library_location"), dpg.get_value("songs_location"), update_progress, update_status)
+        dpg.configure_item("translate_button", enabled=False)
     else:
         print_output("Invalid Rekordbox XML file or song directory")
 
@@ -79,7 +82,7 @@ def main_window():
                 dpg.add_button(label="Browse...", callback=lambda: dpg.show_item("songs_dialog_id"))
             dpg.add_spacer()
             with dpg.group(horizontal=True, width=0):
-                dpg.add_button(tag="txt_file_btn",
+                dpg.add_button(tag="translate_button",
                                 label=f"Translate SoundCloud tracks to local files",
                                 callback=start_translation, height=50, width=500)
             dpg.add_spacer()
